@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload & Lihat Portofolio Mahasiswa - Polibatam</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #2b1055, #7597de);
+      min-height: 100vh;
+      color: white;
+    }
+    .card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+    }
+    footer {
+      margin-top: 60px;
+      padding: 15px;
+      background: rgba(0,0,0,0.4);
+      color: #cfe3ff;
+      text-align: center;
+    }
+    iframe {
+      border-radius: 10px;
+      width: 100%;
+      height: 400px;
+    }
+    .hidden { display: none; }
+    img.rounded.shadow-sm {
+      width: 150px;
+      height: auto;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+
+    <!-- ==================== FORM UPLOAD ==================== -->
+    <section id="uploadSection">
+      <div class="card shadow-lg p-4">
+        <h2 class="text-center mb-4 fw-bold">📤 Upload Portofolio Mahasiswa</h2>
+        <form id="portfolioForm" enctype="multipart/form-data">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nama</label>
+              <input type="text" class="form-control" id="nama" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">NIM</label>
+              <input type="text" class="form-control" id="nim" required>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-2">
+            <div class="col-md-6">
+              <label class="form-label">Judul Proyek</label>
+              <input type="text" class="form-control" id="judul" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Kategori Proyek</label>
+              <select class="form-select" id="kategori" required>
+                <option value="">Pilih Kategori</option>
+                <option>Sistem Otomasi dan IoT</option>
+                <option>Elektronika dan Instrumentasi</option>
+                <option>Sistem Tenaga Listrik</option>
+                <option>Robotika dan Mekatronika</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label">Deskripsi Proyek</label>
+            <textarea class="form-control" id="deskripsi" rows="4" required></textarea>
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label">File Utama (PDF)</label>
+            <input type="file" class="form-control" id="fileUtama" accept=".pdf">
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label">Poster / Thumbnail</label>
+            <input type="file" class="form-control" id="poster" accept="image/*">
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label">Link Video YouTube (opsional)</label>
+            <input type="url" class="form-control" id="youtube" placeholder="https://www.youtube.com/watch?v=xxxxxx">
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label">Gallery Tambahan (opsional)</label>
+            <input type="file" class="form-control" id="gallery" accept="image/*" multiple>
+          </div>
+
+          <div class="mt-4 text-center">
+            <button type="submit" id="submitBtn" class="btn btn-primary w-100 fw-bold">Upload / Simpan Portofolio</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ==================== HASIL UPLOAD ==================== -->
+    <section id="portfolioSection" class="hidden mt-5">
+      <div class="card shadow-lg p-4">
+        <h2 class="text-center fw-bold mb-3">📁 Portofolio Mahasiswa</h2>
+        <hr>
+        <div class="mb-2"><b>👤 Nama:</b> <span id="showNama"></span></div>
+        <div class="mb-2"><b>🆔 NIM:</b> <span id="showNim"></span></div>
+        <div class="mb-2"><b>📘 Judul:</b> <span id="showJudul"></span></div>
+        <div class="mb-2"><b>📂 Kategori:</b> <span id="showKategori"></span></div>
+
+        <h5 class="mt-3 text-info">📝 Deskripsi</h5>
+        <div class="bg-light text-dark p-3 rounded" id="showDeskripsi"></div>
+
+        <div class="mt-4">
+          <h6 class="text-info">📄 File Utama</h6>
+          <a id="showFile" href="#" target="_blank" class="btn btn-outline-light btn-sm mt-2">Lihat Dokumen</a>
+        </div>
+
+        <div class="mt-4 text-center">
+          <h6 class="text-info">🖼️ Poster / Thumbnail</h6>
+          <img id="showPoster" src="" class="img-fluid rounded shadow mt-3" width="300">
+        </div>
+
+        <div class="mt-4">
+          <h6 class="text-info">🎥 Video Demo</h6>
+          <div id="youtubeFrame" class="mt-3 text-center"></div>
+        </div>
+
+        <div class="mt-4">
+          <h6 class="text-info">📸 Gallery Proyek</h6>
+          <div id="galleryContainer" class="row g-3 mt-2"></div>
+        </div>
+
+        <div class="text-center mt-4">
+          <button id="editBtn" class="btn btn-warning fw-bold me-2">✏️ Edit</button>
+          <button id="deleteBtn" class="btn btn-danger fw-bold">🗑️ Hapus</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer>© 2025 Polibatam Creative Lab</footer>
+
+  <script>
+const form = document.getElementById("portfolioForm");
+const uploadSection = document.getElementById("uploadSection");
+const portfolioSection = document.getElementById("portfolioSection");
+let currentData = null;
+let editMode = false;
+let oldJudul = null;
+let oldNim = null;
+
+// Jika sebelumnya klik edit dari halaman kategori
+const editData = JSON.parse(localStorage.getItem("editData"));
+const editIndex = localStorage.getItem("editIndex");
+if (editData) {
+  document.getElementById("nama").value = editData.nama;
+  document.getElementById("nim").value = editData.nim;
+  document.getElementById("judul").value = editData.judul;
+  document.getElementById("kategori").value = editData.kategori;
+  document.getElementById("deskripsi").value = editData.deskripsi;
+  document.getElementById("youtube").value = editData.youtube || "";
+  editMode = true;
+  currentData = editData;
+  oldJudul = editData.judul;
+  oldNim = editData.nim;
+  localStorage.removeItem("editData");
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const nama = document.getElementById("nama").value;
+  const nim = document.getElementById("nim").value;
+  const judul = document.getElementById("judul").value;
+  const kategori = document.getElementById("kategori").value;
+  const deskripsi = document.getElementById("deskripsi").value;
+  const fileUtama = document.getElementById("fileUtama").files[0];
+  const posterFile = document.getElementById("poster").files[0];
+  const youtube = document.getElementById("youtube").value;
+  const galleryFiles = document.getElementById("gallery").files;
+
+  const readFile = (file) => new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.readAsDataURL(file);
+  });
+
+  let posterURL = currentData?.poster || "";
+  let fileURL = currentData?.file || "";
+  if (posterFile) posterURL = await readFile(posterFile);
+  if (fileUtama) fileURL = await readFile(fileUtama);
+  const galleryURLs = await Promise.all(Array.from(galleryFiles).map(readFile));
+
+  const newData = {
+    nama,
+    nim,
+    judul,
+    deskripsi,
+    kategori,
+    poster: posterURL,
+    file: fileURL,
+    youtube,
+    gallery: galleryURLs.length ? galleryURLs : currentData?.gallery || []
+  };
+
+  let data = JSON.parse(localStorage.getItem(kategori)) || [];
+
+  if (editMode) {
+    // cari data lama berdasarkan oldJudul dan oldNim
+    const idx = data.findIndex(d => d.judul === oldJudul && d.nim === oldNim);
+    if (idx !== -1) {
+      data[idx] = newData;
+      editMode = false;
+    } else {
+      data.push(newData); // fallback kalau data lama nggak ketemu
+    }
+  } else {
+    const idx = data.findIndex(d => d.judul === judul && d.nim === nim);
+    if (idx !== -1) data[idx] = newData;
+    else data.push(newData);
+  }
+
+  localStorage.setItem(kategori, JSON.stringify(data));
+  currentData = newData;
+  showPortfolio(newData);
+});
+
+function showPortfolio(data) {
+  document.getElementById("showNama").textContent = data.nama;
+  document.getElementById("showNim").textContent = data.nim;
+  document.getElementById("showJudul").textContent = data.judul;
+  document.getElementById("showDeskripsi").textContent = data.deskripsi;
+  document.getElementById("showKategori").textContent = data.kategori;
+  document.getElementById("showPoster").src = data.poster;
+  document.getElementById("showFile").href = data.file;
+  document.getElementById("showFile").textContent = "Lihat File Utama";
+
+  const youtubeFrame = document.getElementById("youtubeFrame");
+  youtubeFrame.innerHTML = "";
+  if (data.youtube) {
+    let id = "";
+    if (data.youtube.includes("watch?v=")) id = data.youtube.split("watch?v=")[1].split("&")[0];
+    else if (data.youtube.includes("youtu.be/")) id = data.youtube.split("youtu.be/")[1].split("?")[0];
+    youtubeFrame.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}" allowfullscreen></iframe>`;
+  } else {
+    youtubeFrame.innerHTML = `<p class="text-light">Tidak ada video</p>`;
+  }
+
+  const galleryContainer = document.getElementById("galleryContainer");
+  galleryContainer.innerHTML = "";
+  if (data.gallery?.length) {
+    data.gallery.forEach(src => {
+      const img = document.createElement("img");
+      img.src = src;
+      img.className = "col-4 rounded shadow-sm";
+      galleryContainer.appendChild(img);
+    });
+  }
+
+  uploadSection.classList.add("hidden");
+  portfolioSection.classList.remove("hidden");
+}
+
+document.getElementById("editBtn").addEventListener("click", () => {
+  if (!currentData) return;
+  document.getElementById("nama").value = currentData.nama;
+  document.getElementById("nim").value = currentData.nim;
+  document.getElementById("judul").value = currentData.judul;
+  document.getElementById("kategori").value = currentData.kategori;
+  document.getElementById("deskripsi").value = currentData.deskripsi;
+  document.getElementById("youtube").value = currentData.youtube || "";
+  uploadSection.classList.remove("hidden");
+  portfolioSection.classList.add("hidden");
+  editMode = true;
+  oldJudul = currentData.judul;
+  oldNim = currentData.nim;
+});
+
+document.getElementById("deleteBtn").addEventListener("click", () => {
+  if (!currentData) return;
+  if (!confirm("Yakin ingin menghapus portofolio ini?")) return;
+  const kategori = currentData.kategori;
+  let data = JSON.parse(localStorage.getItem(kategori)) || [];
+  data = data.filter(d => !(d.judul === currentData.judul && d.nim === currentData.nim));
+  localStorage.setItem(kategori, JSON.stringify(data));
+  alert("Portofolio berhasil dihapus!");
+  location.reload();
+});
+</script>
+
+</body>
+</html>

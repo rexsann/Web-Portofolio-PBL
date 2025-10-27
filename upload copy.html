@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Portofolio Mahasiswa - Polibatam</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #2b1055, #7597de);
+      color: white;
+      min-height: 100vh;
+    }
+    .card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <div class="card shadow-lg p-4">
+      <h2 class="text-center mb-4 fw-bold">📤 Upload Portofolio Mahasiswa</h2>
+
+      <form id="portfolioForm" enctype="multipart/form-data">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Nama</label>
+            <input type="text" class="form-control" id="nama" readonly>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">NIM</label>
+            <input type="text" class="form-control" id="nim" readonly>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-2">
+          <div class="col-md-6">
+            <label class="form-label">Judul Proyek</label>
+            <input type="text" class="form-control" id="judul" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Kategori Proyek</label>
+            <select class="form-select" id="kategori" required>
+              <option value="">Memuat kategori...</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <label class="form-label">Deskripsi Proyek</label>
+          <textarea class="form-control" id="deskripsi" rows="4" required></textarea>
+        </div>
+
+        <div class="mt-3">
+          <label class="form-label">File Utama (PDF)</label>
+          <input type="file" class="form-control" id="fileUtama" accept=".pdf">
+        </div>
+
+        <div class="mt-3">
+          <label class="form-label">Poster / Thumbnail</label>
+          <input type="file" class="form-control" id="poster" accept="image/*">
+        </div>
+
+        <div class="mt-3">
+          <label class="form-label">Link Video YouTube (opsional)</label>
+          <input type="url" class="form-control" id="youtube" placeholder="https://www.youtube.com/watch?v=xxxxxx">
+        </div>
+
+        <div class="mt-3">
+          <label class="form-label">Gallery Tambahan (opsional)</label>
+          <input type="file" class="form-control" id="gallery" accept="image/*" multiple>
+        </div>
+
+        <div class="mt-4 text-center">
+          <button type="submit" class="btn btn-primary w-100 fw-bold">Upload / Simpan Portofolio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+  // Ambil data user yang login
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+
+  if (!user) {
+    alert("⚠️ Anda belum login! Silakan login terlebih dahulu.");
+    window.location.href = "login.html";
+  } else {
+    document.getElementById("nama").value = user.nama;
+    document.getElementById("nim").value = user.nim;
+  }
+
+  // ====== DAFTAR KATEGORI BERDASARKAN JURUSAN ======
+  const kategoriMap = {
+    "Teknik Informatika": [
+      "Aplikasi Web",
+      "Aplikasi Mobile",
+      "Aplikasi IoT",
+      "Artificial Intelligence"
+    ],
+    "Teknik Mesin": [
+      "Mesin Motor",
+      "Mesin Mobil",
+      "Mesin Kuda",
+      "Mesin Anj"
+    ],
+    "Teknik Elektro": [
+      "IoT Project",
+      "Robotika",
+      "Sistem Embedded"
+    ],
+    "Manajemen Bisnis": [
+      "Business Plan",
+      "Digital Marketing"
+    ]
+  };
+
+  // ====== TAMPILKAN KATEGORI SESUAI JURUSAN USER ======
+  const kategoriSelect = document.getElementById("kategori");
+  kategoriSelect.innerHTML = `<option value="">Pilih Kategori</option>`;
+
+  if (kategoriMap[user.jurusan]) {
+    kategoriMap[user.jurusan].forEach((kategori) => {
+      const opt = document.createElement("option");
+      opt.value = kategori;
+      opt.textContent = kategori;
+      kategoriSelect.appendChild(opt);
+    });
+  } else {
+    kategoriSelect.innerHTML = `<option value="">Tidak ada kategori untuk jurusan ini</option>`;
+  }
+
+  // ====== SIMPAN DATA PORTOFOLIO ======
+  const form = document.getElementById("portfolioForm");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const nama = document.getElementById("nama").value.trim();
+    const nim = document.getElementById("nim").value.trim();
+    const judul = document.getElementById("judul").value.trim();
+    const kategori = document.getElementById("kategori").value;
+    const deskripsi = document.getElementById("deskripsi").value.trim();
+    const fileUtama = document.getElementById("fileUtama").files[0];
+    const posterFile = document.getElementById("poster").files[0];
+    const youtube = document.getElementById("youtube").value.trim();
+    const galleryFiles = document.getElementById("gallery").files;
+
+    const readFile = (file) => new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.readAsDataURL(file);
+    });
+
+    let posterURL = posterFile ? await readFile(posterFile) : "";
+    let fileURL = fileUtama ? await readFile(fileUtama) : "";
+    const galleryURLs = galleryFiles.length
+      ? await Promise.all(Array.from(galleryFiles).map(readFile))
+      : [];
+
+    let allPortfolios = JSON.parse(localStorage.getItem("allPortfolios")) || [];
+
+    const newData = {
+      nama,
+      nim,
+      jurusan: user.jurusan,
+      judul,
+      kategori,
+      deskripsi,
+      file: fileURL,
+      poster: posterURL,
+      youtube,
+      gallery: galleryURLs,
+      tanggal: new Date().toLocaleString()
+    };
+
+    allPortfolios.push(newData);
+    localStorage.setItem("allPortfolios", JSON.stringify(allPortfolios));
+
+    alert("✅ Portofolio berhasil diunggah!");
+    form.reset();
+    window.location.href = "hasil.html";
+  });
+  </script>
+</body>
+</html>

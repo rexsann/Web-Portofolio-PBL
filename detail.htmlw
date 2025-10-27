@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Portofolio Mahasiswa</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #2b1055, #7597de);
+      color: white;
+      min-height: 100vh;
+    }
+    .card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+    }
+    .btn-back {
+      background-color: #ffc107;
+      color: #000;
+      font-weight: 600;
+    }
+    .btn-edit {
+      background-color: #0dcaf0;
+      color: #000;
+      font-weight: 600;
+    }
+    .btn-delete {
+      background-color: #dc3545;
+      color: #fff;
+      font-weight: 600;
+    }
+    iframe {
+      width: 100%;
+      height: 400px;
+      border-radius: 10px;
+      border: none;
+      margin-top: 10px;
+    }
+    .info-box {
+      background: rgba(255, 255, 255, 0.85);
+      color: #222;
+      border-radius: 10px;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+    }
+    .info-box h5 {
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #2b1055;
+    }
+
+    /* === Tampilan Poster & Gallery Grid === */
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      justify-items: center;
+      align-items: center;
+    }
+    .media-grid img {
+      width: 100%;
+      max-width: 250px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      transition: transform 0.2s ease-in-out;
+    }
+    .media-grid img:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <div class="card p-4 shadow-lg">
+      <h2 class="text-center mb-4 fw-bold" id="judul"></h2>
+
+      <div id="detailContent"></div>
+
+      <div class="d-flex justify-content-center gap-3 mt-4">
+        <button class="btn btn-edit" id="editBtn">✏️ Edit</button>
+        <button class="btn btn-delete" id="deleteBtn">🗑️ Hapus</button>
+        <a href="hasil.html" class="btn btn-back">⬅️ Kembali</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const allPortfolios = JSON.parse(localStorage.getItem("allPortfolios")) || [];
+    const index = localStorage.getItem("selectedPortfolio");
+    const data = allPortfolios[index];
+
+    // Fungsi ubah URL YouTube ke format embed
+    function getEmbedURL(url) {
+      if (!url) return null;
+      try {
+        const ytID = new URL(url).searchParams.get("v");
+        if (ytID) return `https://www.youtube.com/embed/${ytID}`;
+        const shortID = url.split("youtu.be/")[1];
+        if (shortID) return `https://www.youtube.com/embed/${shortID}`;
+      } catch {
+        return null;
+      }
+      return null;
+    }
+
+    // Menampilkan detail data
+    if (!data) {
+      document.getElementById("detailContent").innerHTML =
+        "<p class='text-center'>Data portofolio tidak ditemukan.</p>";
+    } else {
+      const embedURL = getEmbedURL(data.youtube);
+      document.getElementById("judul").textContent = data.judul;
+
+      // Gabungkan poster dan gallery ke dalam 1 grid
+      const posterAndGallery = [];
+      if (data.poster) posterAndGallery.push(data.poster);
+      if (data.gallery && data.gallery.length > 0) {
+        posterAndGallery.push(...data.gallery);
+      }
+
+      document.getElementById("detailContent").innerHTML = `
+        <div class="info-box">
+          <h5>🧾 Data Diri Mahasiswa</h5>
+          <p><strong>Nama:</strong> ${data.nama}</p>
+          <p><strong>NIM:</strong> ${data.nim}</p>
+          <p><strong>Jurusan:</strong> ${data.jurusan}</p>
+          <p><strong>Kategori:</strong> ${data.kategori}</p>
+        </div>
+
+        <div class="info-box">
+          <h5>📝 Deskripsi Proyek</h5>
+          <p>${data.deskripsi}</p>
+        </div>
+
+        ${posterAndGallery.length > 0 ? `
+          <div class="info-box">
+            <h5>🖼️ Poster & Galeri</h5>
+            <div class="media-grid">
+              ${posterAndGallery.map(img => `<img src="${img}" alt="Media">`).join('')}
+            </div>
+          </div>` : ""}
+
+        ${data.file ? `
+          <div class="info-box text-center">
+            <h5>📘 File Utama</h5>
+            <a href="${data.file}" target="_blank" class="btn btn-light fw-bold">📄 Lihat File PDF</a>
+          </div>` : ""}
+
+        ${embedURL ? `
+          <div class="info-box">
+            <h5>🎬 Video YouTube</h5>
+            <iframe src="${embedURL}" allowfullscreen></iframe>
+          </div>` : ""}
+
+        <p class="mt-3 text-light"><small>📅 Diunggah pada: ${data.tanggal}</small></p>
+      `;
+    }
+
+    // Tombol Edit
+    document.getElementById("editBtn").addEventListener("click", () => {
+      localStorage.setItem("editIndex", index);
+      window.location.href = "edit.html"; // arahkan ke halaman edit
+    });
+
+    // Tombol Hapus
+    document.getElementById("deleteBtn").addEventListener("click", () => {
+      if (confirm("Apakah kamu yakin ingin menghapus portofolio ini?")) {
+        allPortfolios.splice(index, 1);
+        localStorage.setItem("allPortfolios", JSON.stringify(allPortfolios));
+        alert("Portofolio berhasil dihapus!");
+        window.location.href = "hasil.html";
+      }
+    });
+  </script>
+</body>
+</html>

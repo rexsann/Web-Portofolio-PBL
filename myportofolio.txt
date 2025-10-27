@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Portofolio - Polibatam</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #2b1055, #7597de);
+      min-height: 100vh;
+      color: white;
+    }
+    .card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+    }
+    footer {
+      margin-top: 60px;
+      padding: 15px;
+      background: rgba(0,0,0,0.4);
+      color: #cfe3ff;
+      text-align: center;
+    }
+    iframe {
+      border-radius: 10px;
+      width: 100%;
+      height: 400px;
+    }
+    .hidden { display: none; }
+    .comment-box {
+      background: rgba(255,255,255,0.15);
+      padding: 10px 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+
+    <!-- ==================== FORM UPLOAD ==================== -->
+    <section id="uploadSection">
+      <div class="card shadow-lg p-4">
+        <h2 class="text-center mb-4 fw-bold">📤 Upload Portofolio Saya</h2>
+        <form id="portfolioForm" enctype="multipart/form-data">
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nama</label>
+              <input type="text" class="form-control" id="nama" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">NIM</label>
+              <input type="text" class="form-control" id="nim" required>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-2">
+            <div class="col-md-6">
+              <label class="form-label">Judul Proyek</label>
+              <input type="text" class="form-control" id="judul" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Kategori Proyek</label>
+              <select class="form-select" id="kategori" required>
+                <option value="">Pilih Kategori</option>
+                <option>Aplikasi Web</option>
+                <option>Aplikasi Mobile</option>
+                <option>Aplikasi IoT</option>
+                <option>Artificial Intelligence</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label">Deskripsi Proyek</label>
+            <textarea class="form-control" id="deskripsi" rows="4" placeholder="Tuliskan deskripsi proyek kamu..." required></textarea>
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label">File Utama (PDF)</label>
+            <input type="file" class="form-control" id="file" accept=".pdf" required>
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label">Poster / Thumbnail</label>
+            <input type="file" class="form-control" id="poster" accept="image/*" multiple>
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label">Link Video YouTube (opsional)</label>
+            <input type="url" class="form-control" id="youtube" placeholder="https://www.youtube.com/watch?v=xxxxxx">
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label">Gallery Tambahan (opsional)</label>
+            <input type="file" class="form-control" id="gallery" accept="image/*" multiple>
+          </div>
+
+          <div class="mt-4 text-center">
+            <button type="submit" id="submitBtn" class="btn btn-primary w-100 fw-bold">Upload Portofolio</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ==================== HASIL UPLOAD ==================== -->
+    <section id="portfolioSection" class="hidden mt-5">
+      <div class="card shadow-lg p-4">
+        <h2 class="text-center fw-bold mb-3">📁 Portofolio Saya</h2>
+        <p class="text-center text-light">Berikut hasil karya yang telah kamu upload</p>
+        <hr>
+
+        <div class="mb-2"><b>👤 Nama:</b> <span id="showNama"></span></div>
+        <div class="mb-2"><b>🆔 NIM:</b> <span id="showNim"></span></div>
+        <div class="mb-2"><b>📘 Judul:</b> <span id="showJudul"></span></div>
+        <div class="mb-2"><b>📂 Kategori:</b> <span id="showKategori"></span></div>
+
+        <h5 class="mt-4 text-info">📝 Deskripsi</h5>
+        <div class="bg-light text-dark p-3 rounded" id="showDeskripsi"></div>
+
+        <div class="mt-4">
+          <h6 class="text-info">📄 File Proyek</h6>
+          <a id="showFile" href="#" target="_blank" class="btn btn-outline-light btn-sm mt-2">Lihat Dokumen</a>
+        </div>
+
+        <div class="mt-4">
+          <h6 class="text-info">🖼️ Poster / Thumbnail</h6>
+          <div id="posterContainer" class="row g-3 mt-2"></div>
+        </div>
+
+        <div class="mt-4">
+          <h6 class="text-info">🎥 Video Demo</h6>
+          <div id="youtubeFrame" class="mt-3 text-center"></div>
+        </div>
+
+        <div class="mt-4">
+          <h6 class="text-info">📸 Gallery Proyek</h6>
+          <div id="galleryContainer" class="row g-3 mt-2"></div>
+        </div>
+
+        <!-- ==================== KOLOM KOMENTAR ==================== -->
+        <div class="mt-5">
+          <h5 class="text-info">💬 Kolom Komentar</h5>
+          <form id="commentForm" class="mt-3">
+            <textarea id="commentText" class="form-control" rows="2" placeholder="Tulis komentar..." required></textarea>
+            <div class="text-end mt-2">
+              <button type="submit" class="btn btn-light btn-sm fw-bold">Kirim Komentar</button>
+            </div>
+          </form>
+          <div id="commentList" class="mt-3"></div>
+        </div>
+
+        <hr class="my-4 text-light">
+
+        <div class="text-center d-flex justify-content-center gap-3 flex-wrap">
+          <button id="editBtn" class="btn btn-warning fw-bold">✏️ Edit</button>
+          <button id="deleteBtn" class="btn btn-danger fw-bold">🗑️ Hapus</button>
+        </div>
+
+        <div class="text-center mt-4">
+          <a href="home.html" class="btn btn-success fw-bold">🏠 Kembali ke Beranda</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    © 2025 Polibatam Creative Lab | Portofolio Mahasiswa
+  </footer>
+
+  <script>
+    const form = document.getElementById("portfolioForm");
+    const uploadSection = document.getElementById("uploadSection");
+    const portfolioSection = document.getElementById("portfolioSection");
+    const showNama = document.getElementById("showNama");
+    const showNim = document.getElementById("showNim");
+    const showJudul = document.getElementById("showJudul");
+    const showDeskripsi = document.getElementById("showDeskripsi");
+    const showKategori = document.getElementById("showKategori");
+    const showFile = document.getElementById("showFile");
+    const posterContainer = document.getElementById("posterContainer");
+    const galleryContainer = document.getElementById("galleryContainer");
+    const youtubeFrame = document.getElementById("youtubeFrame");
+    const editBtn = document.getElementById("editBtn");
+    const deleteBtn = document.getElementById("deleteBtn");
+    const commentForm = document.getElementById("commentForm");
+    const commentList = document.getElementById("commentList");
+
+    let storedData = {};
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const nama = document.getElementById("nama").value;
+      const nim = document.getElementById("nim").value;
+      const judul = document.getElementById("judul").value;
+      const deskripsi = document.getElementById("deskripsi").value;
+      const kategori = document.getElementById("kategori").value;
+      const file = document.getElementById("file").files[0];
+      const youtube = document.getElementById("youtube").value;
+      const posters = document.getElementById("poster").files;
+      const gallery = document.getElementById("gallery").files;
+
+      if (!file) {
+        alert("Pilih file utama (PDF) terlebih dahulu!");
+        return;
+      }
+
+      const fileURL = URL.createObjectURL(file);
+      let videoId = "";
+      if (youtube.includes("watch?v=")) videoId = youtube.split("watch?v=")[1].split("&")[0];
+      else if (youtube.includes("youtu.be/")) videoId = youtube.split("youtu.be/")[1].split("?")[0];
+
+      storedData = { nama, nim, judul, deskripsi, kategori, fileURL, youtube, posters: [], gallery: [] };
+
+      const readImages = (files, targetArray, callback) => {
+        let count = 0;
+        if (files.length === 0) return callback();
+        for (let f of files) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            targetArray.push(e.target.result);
+            count++;
+            if (count === files.length) callback();
+          };
+          reader.readAsDataURL(f);
+        }
+      };
+
+      readImages(posters, storedData.posters, () => {
+        readImages(gallery, storedData.gallery, () => {
+          // Simpan ke kategori yang sesuai
+          let key = "";
+          if (kategori === "Aplikasi Web") key = "aplikasiWebProjects";
+          else if (kategori === "Aplikasi Mobile") key = "aplikasiMobileProjects";
+          else if (kategori === "Aplikasi IoT") key = "aplikasiIoTProjects";
+          else if (kategori === "Artificial Intelligence") key = "aiProjects";
+
+          if (key) {
+            const data = JSON.parse(localStorage.getItem(key)) || [];
+            data.push(storedData);
+            localStorage.setItem(key, JSON.stringify(data));
+          }
+
+          // Simpan ke portofolio saya
+          const mine = JSON.parse(localStorage.getItem("myPortfolios")) || [];
+          mine.push(storedData);
+          localStorage.setItem("myPortfolios", JSON.stringify(mine));
+
+          tampilkanHasil();
+          alert("✅ Portofolio berhasil diupload dan masuk ke kategori!");
+        });
+      });
+    });
+
+    function tampilkanHasil() {
+      const p = storedData;
+      showNama.textContent = p.nama;
+      showNim.textContent = p.nim;
+      showJudul.textContent = p.judul;
+      showDeskripsi.textContent = p.deskripsi;
+      showKategori.textContent = p.kategori;
+      showFile.href = p.fileURL;
+      showFile.textContent = "Lihat Dokumen";
+
+      posterContainer.innerHTML = p.posters.map(src => `<div class='col-md-4'><img src='${src}' class='img-fluid rounded shadow'></div>`).join("");
+      galleryContainer.innerHTML = p.gallery.map(src => `<div class='col-md-3 col-6'><img src='${src}' class='img-fluid rounded shadow-sm'></div>`).join("");
+      youtubeFrame.innerHTML = p.youtube
+        ? `<iframe src="https://www.youtube.com/embed/${p.youtube.split("v=")[1] || p.youtube.split(".be/")[1]}" allowfullscreen></iframe>`
+        : `<p class="text-light">Tidak ada video</p>`;
+
+      uploadSection.classList.add("hidden");
+      portfolioSection.classList.remove("hidden");
+      window.scrollTo(0, 0);
+    }
+
+    editBtn.addEventListener("click", () => {
+      uploadSection.classList.remove("hidden");
+      portfolioSection.classList.add("hidden");
+      document.getElementById("nama").value = storedData.nama;
+      document.getElementById("nim").value = storedData.nim;
+      document.getElementById("judul").value = storedData.judul;
+      document.getElementById("deskripsi").value = storedData.deskripsi;
+      document.getElementById("kategori").value = storedData.kategori;
+      document.getElementById("youtube").value = storedData.youtube;
+    });
+
+    deleteBtn.addEventListener("click", () => {
+      if (confirm("Apakah kamu yakin ingin menghapus portofolio ini?")) {
+        storedData = {};
+        form.reset();
+        commentList.innerHTML = "";
+        portfolioSection.classList.add("hidden");
+        uploadSection.classList.remove("hidden");
+        alert("✅ Portofolio berhasil dihapus!");
+      }
+    });
+
+    commentForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = document.getElementById("commentText").value.trim();
+      if (text) {
+        const div = document.createElement("div");
+        div.classList.add("comment-box");
+        div.innerHTML = `<span>${text}</span>`;
+        commentList.prepend(div);
+        commentForm.reset();
+      }
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
